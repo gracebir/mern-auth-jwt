@@ -1,7 +1,7 @@
 const UserModel = require('../models/user.model');
 const {sign} = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const errorResponse = require('../utils/errorResponse')
 
 
 exports.register = async (req,res, next) =>{
@@ -17,7 +17,7 @@ exports.register = async (req,res, next) =>{
             user
         })
     } catch (error) {
-        res.status(501).json({error:error.message})
+        next(error)
     }
     res.send('this is register');
 }
@@ -29,19 +29,19 @@ exports.register = async (req,res, next) =>{
 exports.login = async (req, res, next) =>{
     const { email, password } = req.body;
     if(!email || !password) {
-        res.status(400).json({success: false, error: "Please provide email and password"});
+        return next(new errorResponse("please provide email and password",400))
     }
 
     try {
         const user = await UserModel.findOne({ email }).select("+password");
         if(!user){
-            res.status(404).json({ success: false, error: "Invalid credentials"});
+            return next(new errorResponse("user does not exists",404));
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if(!isMatch){
-            res.status(404).json({ success: false, error:"Invalid Password"})
+            return next(new errorResponse("Invalid password",400));
         }
 
 
@@ -53,8 +53,9 @@ exports.login = async (req, res, next) =>{
                 {expiresIn: "15d"}, 
             )
         })
-    } catch (error) {
-        res.status(501).json({error: error.message})
+    } catch (error) 
+    {
+        next(error);
     }
 }
 
@@ -68,3 +69,8 @@ exports.resetpassword = (req, res, next) =>{
     res.send('You can reset your password!!!')
 }
 
+
+
+exports.sendToken = (req, res, next) =>{
+    const token = UserModel.getSignToken()
+}
