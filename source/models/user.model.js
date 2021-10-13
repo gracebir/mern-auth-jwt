@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-
+const {sign} = require('jsonwebtoken')
 
 const UserSchema = new mongoose.Schema({
     username:{
@@ -37,6 +37,11 @@ UserSchema.pre('save', async function(next){
 
 UserSchema.methods.matchPasswords = async function(password){
     return await bcrypt.compare(password, this.password)
+}
+
+
+UserSchema.methods.getSignToken = async function(){
+    return sign({id: this._id}, process.env.access_token,{expiresIn: "30m"})
 }
 
 
