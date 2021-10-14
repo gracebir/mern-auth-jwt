@@ -14,7 +14,11 @@ exports.register = async (req,res, next) =>{
 
         res.status(201).json({
             success: true,
-            user
+            accessToken: sign(
+                {id: user._id},
+                process.env.access_token,
+                {expiresIn: "15d"}, 
+            )
         })
     } catch (error) {
         next(error)
@@ -45,11 +49,12 @@ exports.login = async (req, res, next) =>{
         }
 
 
-        res.status(201).json({
+        
+        res.status(200).json({
             success: true,
             accessToken: sign(
                 {id: user._id},
-                "mern_secret",
+                process.env.access_token,
                 {expiresIn: "15d"}, 
             )
         })
@@ -71,6 +76,7 @@ exports.resetpassword = (req, res, next) =>{
 
 
 
-exports.sendToken = (req, res, next) =>{
-    const token = UserModel.getSignToken()
+exports.sendToken = (user, statusCode, res) =>{
+    const token = user.getSignToken()
+    res.status(statusCode).json({ success: true, token})
 }
