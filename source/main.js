@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDb = require('./config/db');
 const errorhandler = require('./middleware/error');
-
+const cors = require('cors');
 
 //require('crypto').randomBytes(20).toString("hex")
 
@@ -10,6 +10,7 @@ const errorhandler = require('./middleware/error');
     connectDb();
     const app = express()
     app.use(express.json())
+    app.use(cors());
     const port = process.env.PORT || 5000;
     
     app.use('/api/auth', require('./routes/user.route'))
