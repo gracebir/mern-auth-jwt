@@ -8,16 +8,18 @@
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.0.10"
+    "mongoose": "^6.0.10",
+    "nodemailer": "^6.7.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.13"
   },
   "scripts": {
-    "server":"node source/main.js",
-    "dev":"nodemon source/main.js"
+    "server": "node source/main.js",
+    "dev": "nodemon source/main.js"
   }
 }

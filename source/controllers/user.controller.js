@@ -1,7 +1,9 @@
 const UserModel = require('../models/user.model');
 const {sign} = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const errorResponse = require('../utils/errorResponse')
+const errorResponse = require('../utils/errorResponse');
+const ErrorResponse = require('../utils/errorResponse');
+const crypto = require('crypto');
 
 
 exports.register = async (req,res, next) =>{
@@ -65,8 +67,29 @@ exports.login = async (req, res, next) =>{
 }
 
 
-exports.forgetpassword = (req, res, next) =>{
-    res.send('I forget the password!!!!')
+exports.forgetpassword = async (req, res, next) =>{
+    const { email } = req.body;
+
+    try {
+        const user = await UserModel.findOne({ email });
+        if(!user){
+            return next(new ErrorResponse("Email could not be sent",404));
+        }
+        const resetToken = getResetToken(user);
+        const resetUrl = `http://localhost:3000/passwordrest/${resetToken}`;
+        const message = `
+            <h1>You have requested to reset a password</h1>
+            <p> please go to this link to reset your password</p>
+            <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
+        `
+        try {
+            
+        } catch (error) {
+            
+        }
+    } catch (error) {
+        
+    }
 }
 
 
@@ -79,4 +102,13 @@ exports.resetpassword = (req, res, next) =>{
 exports.sendToken = (user, statusCode, res) =>{
     const token = user.getSignToken()
     res.status(statusCode).json({ success: true, token})
+}
+
+
+exports.getResetToken = (user) =>{
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    user.resetPassword = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.resetPasswordExpire = Date.now() + 30 * (60 * 1000);
+    return resetToken;
+
 }
